@@ -46,8 +46,8 @@ class UserManager:
     def get_user(self, token):
         return RefreshToken(token).user
 
-    def authenticate(self, username, password):
-        user = User.objects(username=username).first()
+    def authenticate(self, email, password):
+        user = User.objects(email=email).first()
         if user and user.check_password(password):
             return user
         else:

@@ -31,12 +31,18 @@ class LoginUser(APIView):
     manager = UserManager()
 
     def post(self, request):
-        username = request.data.get("username")
+        email = request.data.get("email")
         password = request.data.get("password")
         try:
-            user = self.manager.authenticate(username, password)
-            tokenData = self.manager.generate_tokens(user)
-            return Response(tokenData, status=status.HTTP_200_OK)
+            user = self.manager.authenticate(email, password)
+            if user:
+                tokenData = self.manager.generate_tokens(user)
+                return Response(tokenData, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"error": "Invalid credentials"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

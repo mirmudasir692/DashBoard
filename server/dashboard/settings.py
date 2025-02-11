@@ -2,7 +2,6 @@ from pathlib import Path
 import os
 from mongoengine import connect
 from dotenv import load_dotenv
-import motor.motor_asyncio
 
 # Load environment variables
 load_dotenv()
@@ -65,10 +64,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "dashboard.wsgi.application"
 
-# Async MongoDB Configuration
+# MongoDB Configuration
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/mediflux")
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
-db = client.get_database()
+connect(host=MONGO_URI)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
