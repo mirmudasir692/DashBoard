@@ -1,2 +1,29 @@
-server/venv
-server/.env
+# Ignore virtual environment
+venv/
+
+# Ignore environment variables
+.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Django migrations
+./accounts/migrations/
+./accounts/__pycache__/
+./storemanagement/__pycache__
+./storemanagement/migrations
+# Ignore SQLite database files
+db.sqlite3
+db.sqlite3-journal
+
+# Ignore coverage and cache files
+.coverage
+.cache
+.mypy_cache/
+.tox/
+.nox/
+
+# Ignore logs
+*.log
