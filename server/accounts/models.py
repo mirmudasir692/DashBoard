@@ -1,7 +1,7 @@
 from mongoengine import Document, StringField, EmailField, BooleanField
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.paginator import Paginator
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 
 class UserManager:
@@ -42,6 +42,13 @@ class UserManager:
             "access_token": str(refreshtoken.access_token),
             "refresh_token": str(refreshtoken),
         }
+
+    def check_user_auth(self, access_token):
+        try:
+            AccessToken(access_token)
+            return True
+        except Exception as e:
+            return False
 
     def get_user(self, token):
         return RefreshToken(token).user

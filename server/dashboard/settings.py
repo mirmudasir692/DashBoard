@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "accounts",
     "storemanagement",
+    "storeUser",
 ]
 
 MIDDLEWARE = [
@@ -39,6 +40,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -109,3 +111,35 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Server Port
 PORT = int(os.getenv("PORT", 5000))
+
+
+# JWT Configuration
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",  # Needed for cookies
+    ),
+}
+
+CSRF_TRUSTED_ORIGINS = ("https://127.0.0.1:800",)
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+    "AUTH_COOKIE": "access_token",  # Name of the access token cookie
+    "AUTH_COOKIE_REFRESH": "refresh_token",  # Name of the refresh token cookie
+    "AUTH_COOKIE_SECURE": False,  # Set to True in production (for HTTPS)
+    "AUTH_COOKIE_HTTP_ONLY": True,  # Prevent JavaScript access to the cookie
+    "AUTH_COOKIE_SAMESITE": "Lax",  # CSRF protection
+    "AUTH_COOKIE_PATH": "/",  # Path for the cookies
+}
