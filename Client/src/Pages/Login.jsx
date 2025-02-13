@@ -13,10 +13,10 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import backgroundPattern from "../assets/images/image.png";
-import {useTitle} from "../Hooks/useTitle";
+// import {useTitle} from "../Hooks/useTitle";
 
 function Login() {
-  useTitle("Login");
+  // useTitle("Login");
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
