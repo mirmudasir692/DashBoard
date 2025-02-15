@@ -19,5 +19,3 @@ services:
         value: "5000"
       - key: PYTHONPATH
         value: "/opt/render/"
-      - key: DJANGO_SETTINGS_MODULE
-        value: "server.dashboard.settings"
