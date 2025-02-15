@@ -5,7 +5,7 @@ services:
     plan: free
     buildCommand: |
       pip install -r requirements.txt
-    startCommand: gunicorn server.dashboard.wsgi:application --bind 0.0.0.0:5000
+    startCommand: gunicorn dashboard.wsgi:application --bind 0.0.0.0:5000
     envVars:
       - key: SECRET_KEY
         value: "django-insecure-wo5l%@)hc=v3hnd97s7q7h_14rrb9i2ez0evl0nw4)r!%f7mr2"
@@ -20,4 +20,4 @@ services:
       - key: PYTHONPATH
         value: "/opt/render/" # Critical fix
       - key: DJANGO_SETTINGS_MODULE
-        value: "server.dashboard.settings"
+        value: "dashboard.settings"
