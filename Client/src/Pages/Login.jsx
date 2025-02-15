@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -13,6 +14,9 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import backgroundPattern from "../assets/images/image.png";
+import { useAuthStatusQuery, useLoginMutation } from "../features/authApiSlice";
+import { useToast } from "../globals/ToastContext";
+import useTitle from "../Hooks/useTitle";
 // import {useTitle} from "../Hooks/useTitle";
 
 function Login() {
@@ -21,9 +25,22 @@ function Login() {
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const navigator = useNavigate();
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
+  const {
+    data,
+    isLoading: isAuthenticating,
+    isError: isErrorAuthenticating,
+  } = useAuthStatusQuery();
+  const isAuthenticated = isErrorAuthenticating ? false : data?.isAuthenticated;
+  if (isAuthenticated) {
+    navigator("/");
+  }
+  const { showToast } = useToast();
+  const [login, { isLoading }] = useLoginMutation();
+  useTitle("Login | Mediflux");
 
   const formik = useFormik({
     initialValues: {
@@ -34,8 +51,17 @@ function Login() {
       email: Yup.string().email("Invalid email").required("Email is required"),
       password: Yup.string().required("Password is required"),
     }),
-    onSubmit: (values) => {
-      console.log("Login Data:", values);
+    onSubmit: async (values) => {
+      try {
+        console.log("Login Data:", values);
+        const response = await login({ ...values }).unwrap();
+        console.log("Login Response:", response);
+        navigator("/");
+      } catch (error) {
+        console.log("Login Error:", error.data.error);
+        showToast(error.data.error, "error");
+        console.error("Login Error:", error.data.error);
+      }
     },
   });
 
@@ -70,7 +96,8 @@ function Login() {
             MediFlux Management Dashboard
           </h1>
           <p className="text-lg mb-10 text-white italic font-semibold mt-4">
-            Centralised control for seamless pharmacy operations and administration
+            Centralised control for seamless pharmacy operations and
+            administration
           </p>
         </div>
 
@@ -141,25 +168,23 @@ function Login() {
                   py: 1.5,
                   width: "100%",
                   fontSize: "1rem",
-                  backgroundColor: 'rgb(0 128 128 / var(--tw-bg-opacity, 1))',
-                  '&:hover': {
-                    backgroundColor: 'rgb(0 140 140 / var(--tw-bg-opacity, 1))',
+                  backgroundColor: "rgb(0 128 128 / var(--tw-bg-opacity, 1))",
+                  "&:hover": {
+                    backgroundColor: "rgb(0 140 140 / var(--tw-bg-opacity, 1))",
                   },
                 }}
               >
                 Login
               </Button>
-
             </form>
           </div>
         </div>
       </div>
     </>
-
   );
 }
 
-
-
 export default Login;
-{/* */ }
+{
+  /* */
+}
