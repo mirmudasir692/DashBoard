@@ -1,0 +1,19 @@
+services:
+  - name: django-backend
+    type: web
+    env: python
+    plan: free  # You can upgrade based on your needs
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: gunicorn dashboard.wsgi:application --bind 0.0.0.0:5000
+    envVars:
+      - key: SECRET_KEY
+        value: "django-insecure-wo5l%@)hc=v3hnd97s7q7h_14rrb9i2ez0evl0nw4)r!%f7mr2"
+      - key: DEBUG
+        value: "False"
+      - key: MONGO_URI
+        value: "mongodb+srv://coderoadsoftwares:5tr0n9P%4055w0rd@mycluster.9je5y9a.mongodb.net/DevMediFlux?retryWrites=true&w=majority&appName=MyCluster"
+      - key: FRONTEND_URL
+        value: "https://dash-board-jade-pi.vercel.app/"
+      - key: PORT
+        value: "5000"
