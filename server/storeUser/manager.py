@@ -25,7 +25,7 @@ class UserManager:
             name=name,
             phone=phone,
             role=role,
-            store_id=store_id,
+            storeId=store_id,
             password=hashed_password,
             salt=salt,
         )

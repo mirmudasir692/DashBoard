@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .models import User
 
+
 class UserManager:
     def get_users(self, page=1):
         paginator = Paginator(User.objects(), 10)
@@ -43,7 +44,11 @@ class UserManager:
 
     def check_user_auth(self, access_token):
         try:
-            AccessToken(access_token)
+            validated_token = AccessToken(access_token)
+
+
+            user_id = validated_token.get("user_id")
+
             return True
         except Exception as e:
             return False

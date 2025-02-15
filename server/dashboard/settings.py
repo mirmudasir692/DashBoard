@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -28,22 +28,26 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "corsheaders",
     "django.contrib.staticfiles",
     "rest_framework",
     "accounts",
     "storemanagement",
     "storeUser",
+    "activity_log",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "accounts.authMiddleware.JWTAuthCookieMiddleware",
 ]
 
 ROOT_URLCONF = "dashboard.urls"
@@ -121,11 +125,14 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",  # Needed for cookies
     ),
 }
+SESSION_COOKIE_AGE = 86400
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 CSRF_TRUSTED_ORIGINS = ("https://127.0.0.1:800",)
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "USER_ID_FIELD": "id",
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -136,10 +143,20 @@ SIMPLE_JWT = {
     "ISSUER": None,
     "JWK_URL": None,
     "LEEWAY": 0,
+    "SameSite": None,
     "AUTH_COOKIE": "access_token",  # Name of the access token cookie
     "AUTH_COOKIE_REFRESH": "refresh_token",  # Name of the refresh token cookie
-    "AUTH_COOKIE_SECURE": False,  # Set to True in production (for HTTPS)
+    "AUTH_COOKIE_SECURE": not DEBUG,  # Set to True in production (for HTTPS)
     "AUTH_COOKIE_HTTP_ONLY": True,  # Prevent JavaScript access to the cookie
-    "AUTH_COOKIE_SAMESITE": "Lax",  # CSRF protection
+    "AUTH_COOKIE_SAMESITE": "None",  # CSRF protection
     "AUTH_COOKIE_PATH": "/",  # Path for the cookies
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "https://example.com",
+    "https://sub.example.com",
+    "http://localhost:8080",
+    "http://localhost:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True

@@ -6,19 +6,17 @@ from mongoengine import (
     ListField,
     DictField,
     ReferenceField,
+    IntField,
 )
 from bcrypt import hashpw, gensalt, checkpw
 from datetime import datetime, timezone
-
-
-
 
 
 Permission = {"read": True, "write": True, "delete": True}
 
 
 class User(Document):
-    store_id = ReferenceField("Store", required=True, dbref=False)
+    storeId = ReferenceField("Store", required=True, dbref=False)
     name = StringField(required=True)
     phone = StringField()
     email = StringField(required=True, unique=True)
@@ -41,8 +39,9 @@ class User(Document):
     )
     deactivated = BooleanField(default=False)
     refresh_tokens = ListField(DictField(), default=[])
-    created_at = DateTimeField(default=datetime.now(timezone.utc))
-    updated_at = DateTimeField(default=datetime.now(timezone.utc))
+    createdAt = DateTimeField(default=datetime.now(timezone.utc))
+    updatedAt = DateTimeField(default=datetime.now(timezone.utc))
+    __v = IntField(default=0, db_field="__v")
 
     def valid_password(self, password):
         try:
@@ -51,13 +50,30 @@ class User(Document):
             raise ValueError("Error validating password: " + str(e))
 
     meta = {
-        "collection":"users",
+        "collection": "users",
         "indexes": [
-            {"fields": ["store_id", "email"], "unique": True},
+            {"fields": ["storeId", "email"], "unique": True},
             {
-                "fields": ["store_id", "phone"],
+                "fields": ["storeId", "phone"],
                 "unique": True,
                 "partialFilterExpression": {"phone": {"$exists": True}},
             },
-        ]
+        ],
     }
+
+    def set_password(self, raw_password):
+        salt = gensalt().decode()
+        hashed_password = hashpw(raw_password.encode(), salt.encode()).decode()
+        self.password = hashed_password
+        self.salt = salt
+
+    def check_password(self, raw_password):
+        return checkpw(raw_password.encode(), self.password.encode())
+
+    def change_password(self, new_password):
+        if not new_password:
+            raise ValueError("New password is required")
+        self.set_password(new_password)
+
+    def __str__(self):
+        return self.email

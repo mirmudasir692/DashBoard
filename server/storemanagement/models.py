@@ -8,7 +8,7 @@ from mongoengine import (
     EmbeddedDocumentField,
     ObjectIdField,
 )
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 # Embedded Address Document
@@ -33,7 +33,7 @@ class Store(Document):
     # Embedded Address
     address = EmbeddedDocumentField(Address)
 
-    phone = StringField(required=True, unique=True)
+    phone = StringField(required=True)
     email = StringField(required=True, unique=True)
 
     isSupplier = BooleanField(default=False)
@@ -44,14 +44,18 @@ class Store(Document):
     isSubscriptionActive = BooleanField(required=True, default=True)
     isOnTrial = BooleanField(default=False)
 
-    subscriptionEndDate = DateTimeField()
-
     inActiveReason = StringField(choices=["payment_due", "restricted", "other"])
 
-    created_at = DateTimeField(default=datetime.now(timezone.utc))
-    updated_at = DateTimeField(default=datetime.now(timezone.utc))
+    createdAt = DateTimeField(default=datetime.now(timezone.utc))
+    subscriptionEndDate = DateTimeField(
+        default=lambda: datetime.utcnow() + timedelta(days=365)
+    )
+
+    updatedAt = DateTimeField(default=datetime.now(timezone.utc))
+    __v = IntField(default=0, db_field="__v")
 
     # Override save to update timestamps
     def save(self, *args, **kwargs):
-        self.updated_at = datetime.now(timezone.utc)
+
+        self.updatedAt = datetime.now(timezone.utc)  # Corrected field name
         return super(Store, self).save(*args, **kwargs)

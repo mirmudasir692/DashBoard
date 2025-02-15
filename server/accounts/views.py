@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from .manager import UserManager
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from django.conf import settings
+from .JSONAuthentication import CookieJWTAuthentication
 
 
 class CreateUserApiView(APIView):
@@ -47,24 +47,24 @@ class LoginUser(APIView):
                     "access_token",
                     tokenData["access_token"],
                     httponly=True,
-                    secure=not settings.DEBUG,
-                    samesite="Lax",
+                    secure=settings.DEBUG,
+                    samesite="None",
                     path="/",
                 )
                 response.set_cookie(
                     "refresh_token",
                     tokenData["refresh_token"],
                     httponly=True,
-                    secure=not settings.DEBUG,
-                    samesite="Lax",
+                    secure=settings.DEBUG,
+                    samesite="None",
                     path="/",
                 )
                 return response
 
             else:
                 return Response(
-                    {"error": "Invalid credentials"},
-                    status=status.HTTP_401_UNAUTHORIZED,
+                    {"error": "User Doesn't Exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as e:
@@ -82,13 +82,13 @@ class UserApiView(APIView):
 
 class AuthApiView(APIView):
     manager = UserManager()
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CookieJWTAuthentication,)
 
     def get(self, request):
         try:
             access_token = request.COOKIES.get("access_token")
             if not access_token:
-                return Response({"isAuthenticated": False}, status=status.HTTP_401_OK)
+                return Response({"isAuthenticated": False}, status=status.HTTP_200_OK)
             valid = self.manager.check_user_auth(access_token)
             return Response({"isAuthenticated": valid}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -96,7 +96,7 @@ class AuthApiView(APIView):
 
 
 class LogoutUser(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CookieJWTAuthentication,)
 
     def post(self, request):
         try:
@@ -112,7 +112,7 @@ class LogoutUser(APIView):
 
 class RefreshTokenApiView(TokenRefreshView):
     manager = UserManager()
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CookieJWTAuthentication,)
 
     def post(self, request, *args, **kwargs):
         # Extract refresh token from HTTP-only cookies
@@ -130,22 +130,23 @@ class RefreshTokenApiView(TokenRefreshView):
                 "refresh_token": str(refreshtoken),
             }
             response = Response(status=status.HTTP_200_OK)
-            print("token_data", token_data)
 
             # Set both tokens as HTTP-only cookies (reuse LoginUser's cookie settings)
             response.set_cookie(
-                key="accesss_token",
+                key="access_token",
                 value=token_data["access_token"],
                 httponly=True,
-                secure=True,
-                samesite="Lax",
+                secure=settings.DEBUG,
+                samesite="None",
+                path="/",
             )
             response.set_cookie(
                 key="refresh_token",
                 value=token_data["refresh_token"],
                 httponly=True,
-                secure=True,
-                samesite="Lax",
+                secure=settings.DEBUG,
+                samesite="None",
+                path="/",
             )
 
             return response
