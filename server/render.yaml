@@ -2,7 +2,7 @@ services:
   - name: django-backend
     type: web
     env: python
-    plan: free  # You can upgrade based on your needs
+    plan: free
     buildCommand: |
       pip install -r requirements.txt
     startCommand: gunicorn server.dashboard.wsgi:application --bind 0.0.0.0:5000
@@ -17,3 +17,7 @@ services:
         value: "https://dash-board-jade-pi.vercel.app/"
       - key: PORT
         value: "5000"
+      - key: PYTHONPATH
+        value: "/opt/render/" # Critical fix
+      - key: DJANGO_SETTINGS_MODULE
+        value: "server.dashboard.settings"
